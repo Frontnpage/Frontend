@@ -50,18 +50,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Restore from localStorage
   let savedBalance = localStorage.getItem("totalBalance");
-  if (savedBalance) {
-  totalBalance = parseFloat(savedBalance);
-  balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+  if (savedBalance) totalBalance = parseFloat(savedBalance);
+
   let savedTransactions = JSON.parse(localStorage.getItem("transactions")) || [];
   savedTransactions.forEach(tx => {
-  const li = document.createElement("li");
-  li.classList.add(tx.type);
-  li.innerHTML = `<span>${tx.text}</span><span>${tx.amount}</span>`;
-  transactionsList.insertBefore(li, transactionsList.firstChild);
-});
-  
+    const li = document.createElement("li");
+    li.classList.add(tx.type);
+    li.innerHTML = `<span>${tx.text}</span><span>${tx.amount}</span>`;
+    transactionsList.insertBefore(li, transactionsList.firstChild);
+  });
+
+  // Update balance display
+  if (balanceEl) {
+    balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   // Toggle Transfer Form
   if (toggleBtn && sendForm) {
     toggleBtn.addEventListener("click", () => {
@@ -100,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Disable button + processing animation
       sendBtn.disabled = true;
       const originalText = sendBtn.textContent;
       let dots = 0;
@@ -122,13 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
         li.innerHTML = `<span>Transfer to ${recipient} (${bank})${note ? " — " + note : ""}</span><span>-$${amount.toLocaleString()}</span>`;
         transactionsList.insertBefore(li, transactionsList.firstChild);
 
-        // Save to localStorage
-        localStorage.setItem("totalBalance", totalBalance);
+        // Save updated balance and transactions
         savedTransactions.unshift({
-        type: "expense",
-        text: `Transfer to ${recipient} (${bank})${note ? " — " + note : ""}`,
-        amount: "-$" + amount.toLocaleString()
-      });
+          type: "expense",
+          text: `Transfer to ${recipient} (${bank})${note ? " — " + note : ""}`,
+          amount: "-$" + amount.toLocaleString()
+        });
+        localStorage.setItem("totalBalance", totalBalance);
         localStorage.setItem("transactions", JSON.stringify(savedTransactions));
 
         alert(`Transfer of $${amount.toLocaleString()} to ${recipient}${note ? " — " + note : ""} successful ✔`);
