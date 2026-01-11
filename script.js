@@ -254,3 +254,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+// ===== RESET SAMPLE TRANSACTIONS WITH DATES =====
+localStorage.removeItem("transactions");
+
+localStorage.setItem("transactions", JSON.stringify([
+  { type: "income", text: "Salary Deposit", amount: "$5000", date: "2026-01-01" },
+  { type: "expense", text: "Amazon — Shopping", amount: "$120", date: "2026-01-10" },
+  { type: "expense", text: "Uber — Transport", amount: "$50", date: "2026-01-12" },
+  { type: "expense", text: "Netflix — Entertainment", amount: "$15", date: "2026-01-2" },
+  { type: "expense", text: "Rent — Housing", amount: "$500", date: "2026-01-01" }
+]));
