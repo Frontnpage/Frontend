@@ -34,11 +34,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("toggle-transfer-btn");
   const balanceEl = document.querySelector(".balance");
   const transactionsList = document.querySelector(".transactions-card ul");
-  let totalBalance = balanceEl ? parseFloat(balanceEl.textContent.replace(/[$,]/g, "")) : 0;
 
-  // Restore balance & transactions
-  const savedBalance = localStorage.getItem("totalBalance");
-  if (savedBalance) totalBalance = parseFloat(savedBalance);
+// 1️⃣ Read balance from HTML first
+let totalBalance = balanceEl 
+    ? parseFloat(balanceEl.textContent.replace(/[$,]/g, "")) 
+    : 0;
+
+// 2️⃣ Check localStorage — only use it if you haven't manually changed the HTML
+const savedBalance = localStorage.getItem("totalBalance");
+if (savedBalance && savedBalance !== totalBalance.toString()) {
+    // optional: comment out the next line if you always want manual HTML edits to win
+    totalBalance = parseFloat(savedBalance);
+}
+
+// 3️⃣ Update balance display
+balanceEl && (balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+}));
 
   const savedTransactions = JSON.parse(localStorage.getItem("transactions")) || [];
   if (transactionsList) {
