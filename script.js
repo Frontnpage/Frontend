@@ -78,6 +78,69 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ===== Create Professional PIN Modal =====
+  const pinModal = document.createElement("div");
+  pinModal.id = "pinModal";
+  pinModal.style.display = "none";
+  pinModal.style.position = "fixed";
+  pinModal.style.top = "0";
+  pinModal.style.left = "0";
+  pinModal.style.width = "100%";
+  pinModal.style.height = "100%";
+  pinModal.style.backgroundColor = "rgba(0,0,0,0.5)";
+  pinModal.style.zIndex = "1000";
+  pinModal.style.display = "flex";
+  pinModal.style.justifyContent = "center";
+  pinModal.style.alignItems = "center";
+  pinModal.style.fontFamily = "Arial, sans-serif";
+
+  pinModal.innerHTML = `
+    <div style="
+      background:#fff; 
+      padding:25px 30px; 
+      border-radius:15px; 
+      width:320px; 
+      text-align:center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      position: relative;
+    ">
+      <h3 style="margin-bottom:15px; color:#333;">Enter Transfer PIN</h3>
+      <p style="color:#666; font-size:14px; margin-bottom:15px;">For security, please enter your 4-digit transfer PIN.</p>
+      <input type="password" id="transferPin" placeholder="••••" style="
+        width:80%; 
+        padding:10px; 
+        font-size:16px; 
+        border-radius:8px; 
+        border:1px solid #ccc;
+        text-align:center;
+        letter-spacing:5px;
+      ">
+      <div style="margin-top:20px;">
+        <button id="confirmPinBtn" style="
+          padding:8px 20px; 
+          background:#007bff; 
+          color:#fff; 
+          border:none; 
+          border-radius:8px;
+          cursor:pointer;
+          font-size:14px;
+        ">Confirm</button>
+        <button id="cancelPinBtn" style="
+          padding:8px 20px; 
+          background:#ccc; 
+          color:#333; 
+          border:none; 
+          border-radius:8px;
+          cursor:pointer;
+          font-size:14px;
+          margin-left:10px;
+        ">Cancel</button>
+      </div>
+      <div id="pinMessage" style="color:red; margin-top:10px; font-size:13px;"></div>
+    </div>
+  `;
+  document.body.appendChild(pinModal);
+
   // Send Money Form Submission
   if (sendForm && balanceEl && transactionsList) {
     const amountInput = document.getElementById("amount");
@@ -103,44 +166,70 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Disable button + processing animation
-      sendBtn.disabled = true;
-      const originalText = sendBtn.textContent;
-      let dots = 0;
-      sendBtn.textContent = "Processing";
-      const loader = setInterval(() => {
-        dots = (dots + 1) % 4;
-        sendBtn.textContent = "Processing" + ".".repeat(dots);
-      }, 400);
+      // Show PIN modal
+      pinModal.style.display = "flex";
+      const pinInput = document.getElementById("transferPin");
+      const pinMessage = document.getElementById("pinMessage");
+      pinInput.value = "";
+      pinMessage.textContent = "";
+      pinInput.focus();
 
-      setTimeout(() => {
-        clearInterval(loader);
+      // Confirm PIN button
+      document.getElementById("confirmPinBtn").onclick = () => {
+        const enteredPin = pinInput.value.trim();
+        const correctPin = "2027"; // Hardcoded demo PIN
 
-        // Update balance
-        totalBalance -= amount;
-        balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (enteredPin === correctPin) {
+          pinModal.style.display = "none";
 
-        // Add transaction
-        const li = document.createElement("li");
-        li.classList.add("expense");
-        li.innerHTML = `<span>Transfer to ${recipient} (${bank})${note ? " — " + note : ""}</span><span>-$${amount.toLocaleString()}</span>`;
-        transactionsList.insertBefore(li, transactionsList.firstChild);
+          // Disable button + processing animation
+          sendBtn.disabled = true;
+          const originalText = sendBtn.textContent;
+          let dots = 0;
+          sendBtn.textContent = "Processing";
+          const loader = setInterval(() => {
+            dots = (dots + 1) % 4;
+            sendBtn.textContent = "Processing" + ".".repeat(dots);
+          }, 400);
 
-        // Save updated balance and transactions
-        savedTransactions.unshift({
-          type: "expense",
-          text: `Transfer to ${recipient} (${bank})${note ? " — " + note : ""}`,
-          amount: "-$" + amount.toLocaleString()
-        });
-        localStorage.setItem("totalBalance", totalBalance);
-        localStorage.setItem("transactions", JSON.stringify(savedTransactions));
+          setTimeout(() => {
+            clearInterval(loader);
 
-        alert(`Transfer of $${amount.toLocaleString()} to ${recipient}${note ? " — " + note : ""} successful ✔`);
+            // Update balance
+            totalBalance -= amount;
+            balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        sendForm.reset();
-        sendBtn.disabled = false;
-        sendBtn.textContent = originalText;
-      }, 2000);
+            // Add transaction
+            const li = document.createElement("li");
+            li.classList.add("expense");
+            li.innerHTML = `<span>Transfer to ${recipient} (${bank})${note ? " — " + note : ""}</span><span>-$${amount.toLocaleString()}</span>`;
+            transactionsList.insertBefore(li, transactionsList.firstChild);
+
+            // Save updated balance and transactions
+            savedTransactions.unshift({
+              type: "expense",
+              text: `Transfer to ${recipient} (${bank})${note ? " — " + note : ""}`,
+              amount: "-$" + amount.toLocaleString()
+            });
+            localStorage.setItem("totalBalance", totalBalance);
+            localStorage.setItem("transactions", JSON.stringify(savedTransactions));
+
+            alert(`Transfer of $${amount.toLocaleString()} to ${recipient}${note ? " — " + note : ""} successful ✔`);
+
+            sendForm.reset();
+            sendBtn.disabled = false;
+            sendBtn.textContent = originalText;
+          }, 2000);
+
+        } else {
+          pinMessage.textContent = "Incorrect PIN. Try again.";
+        }
+      };
+
+      // Cancel button
+      document.getElementById("cancelPinBtn").onclick = () => {
+        pinModal.style.display = "none";
+      };
     });
   }
 
