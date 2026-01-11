@@ -122,6 +122,15 @@ document.addEventListener("DOMContentLoaded", () => {
         li.innerHTML = `<span>Transfer to ${recipient} (${bank})${note ? " — " + note : ""}</span><span>-$${amount.toLocaleString()}</span>`;
         transactionsList.insertBefore(li, transactionsList.firstChild);
 
+        // Save to localStorage
+        localStorage.setItem("totalBalance", totalBalance);
+        savedTransactions.unshift({
+        type: "expense",
+        text: `Transfer to ${recipient} (${bank})${note ? " — " + note : ""}`,
+        amount: "-$" + amount.toLocaleString()
+      });
+        localStorage.setItem("transactions", JSON.stringify(savedTransactions));
+
         alert(`Transfer of $${amount.toLocaleString()} to ${recipient}${note ? " — " + note : ""} successful ✔`);
 
         sendForm.reset();
