@@ -35,20 +35,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const balanceEl = document.querySelector(".balance");
   const transactionsList = document.querySelector(".transactions-card ul");
 
-  // --------------------------
-  // ===== BALANCE TOGGLE =====
-  // --------------------------
-  const eyeOpen = document.getElementById("eye-open");
-  const eyeClosed = document.getElementById("eye-closed");
-  const toggleBalanceBtn = document.getElementById("toggle-balance");
-  const sensitiveBalances = document.querySelectorAll(".sensitive");
+// --------------------------
+// ===== BALANCE TOGGLE =====
+// --------------------------
+const eyeOpen = document.getElementById("eye-open");
+const eyeClosed = document.getElementById("eye-closed");
+const toggleBalanceBtn = document.getElementById("toggle-balance");
+const sensitiveBalances = document.querySelectorAll(".sensitive");
 
-  if (toggleBalanceBtn && sensitiveBalances.length > 0 && eyeOpen && eyeClosed) {
+if (toggleBalanceBtn && sensitiveBalances.length > 0 && eyeOpen && eyeClosed) {
   let visible = true;
   const originalValues = [];
   sensitiveBalances.forEach(el => originalValues.push(el.textContent));
 
   toggleBalanceBtn.addEventListener("click", () => {
+    // Hide or show balances
     sensitiveBalances.forEach((el, index) => {
       if (visible) {
         el.textContent = "••••••"; // hide
@@ -58,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
         el.classList.remove("hidden");
       }
     });
-  }
 
     // Toggle eye icon
     if (visible) {
@@ -71,7 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     visible = !visible;
   });
-    
+}
+
+  
 // Step 1: Check localStorage first
 let totalBalance = parseFloat(localStorage.getItem("totalBalance"));
 
