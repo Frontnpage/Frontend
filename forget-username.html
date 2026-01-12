@@ -1,0 +1,62 @@
+<script>
+  if (!localStorage.getItem("loggedIn")) {
+    // If already logged in, redirect to dashboard
+    window.location.href = "dashboard.html";
+  }
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forget Username | Front Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="profile">
+      <span>Front Page</span>
+    </div>
+    <a href="index.html" class="logout-btn">Back</a>
+  </nav>
+
+  <main class="info-page">
+    <h1>Forgot Username</h1>
+    <p>Enter your registered email or phone number to recover your username.</p>
+
+    <form id="forget-username-form">
+      <div class="form-group">
+        <label for="emailPhone">Email or Phone</label>
+        <input type="text" id="emailPhone" placeholder="Enter email or phone" required>
+      </div>
+      <button type="submit">Recover Username</button>
+    </form>
+
+    <p id="username-message" style="margin-top:15px; color:green;"></p>
+  </main>
+
+  <footer class="login-footer">
+    <small>Demo project only. No real services provided.</small>
+  </footer>
+
+  <script>
+    const form = document.getElementById('forget-username-form');
+    const message = document.getElementById('username-message');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('emailPhone').value.trim();
+
+      if (!input) return alert("Please enter your email or phone.");
+
+      // Fake response
+      setTimeout(() => {
+        message.textContent = "Your username is: John Williams ✔";
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>
