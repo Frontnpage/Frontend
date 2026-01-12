@@ -219,27 +219,30 @@ document.addEventListener("DOMContentLoaded", () => {
    const payBillCard = document.querySelector('.pay-bill-card');
    const requestMoneyCard = document.querySelector('.request-money-card');
 
-   quickBtns.forEach(btn => {
-   btn.addEventListener('click', () => {
-   const action = btn.dataset.action;
+    quickBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+    const action = btn.dataset.action;
 
     // Ignore send-money (handled elsewhere)
     if (action === 'send-money') return;
 
-    // Determine current state
+    // Get current visibility
     const payVisible = payBillCard.style.display === 'block';
     const requestVisible = requestMoneyCard.style.display === 'block';
 
-    // Toggle logic
     if (action === 'pay-bill') {
+      // Toggle pay bill
       payBillCard.style.display = !payVisible ? 'block' : 'none';
-      requestMoneyCard.style.display = 'none'; // always hide the other
+      // Always hide the other form
+      requestMoneyCard.style.display = 'none';
     } else if (action === 'request-money') {
+      // Toggle request money
       requestMoneyCard.style.display = !requestVisible ? 'block' : 'none';
-      payBillCard.style.display = 'none'; // always hide the other
+      // Always hide the other form
+      payBillCard.style.display = 'none';
     }
 
-    // Hide Send Money if open
+    // Hide Send Money form if open
     if (sendForm) sendForm.style.display = 'none';
     if (toggleTransferBtn) toggleTransferBtn.textContent = "Transfer Funds";
   });
