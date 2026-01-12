@@ -17,12 +17,12 @@
 
   <main class="info-page">
     <h1>Forgot Username</h1>
-    <p>Enter your registered email or phone number to recover your username.</p>
+    <p>Enter your registered email to recover your username.</p>
 
     <form id="forget-username-form">
       <div class="form-group">
-        <label for="emailPhone">Email or Phone</label>
-        <input type="text" id="emailPhone" placeholder="Enter email or phone" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your registered email" required>
       </div>
       <button type="submit">Recover Username</button>
     </form>
@@ -40,14 +40,24 @@
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const input = document.getElementById('emailPhone').value.trim();
+      const emailInput = document.getElementById('email').value.trim().toLowerCase();
+      const registeredEmail = "loganmoore7700@gmail.com";
 
-      if (!input) return alert("Please enter your email or phone.");
+      if (!emailInput) return alert("Please enter your email.");
 
-      // Fake response
+      // Simulate processing delay
+      message.style.color = "#007bff";
+      message.textContent = "Verifying email...";
+      
       setTimeout(() => {
-        message.textContent = "Your username is: John Williams ✔";
-      }, 1000);
+        if (emailInput === registeredEmail) {
+          message.style.color = "green";
+          message.textContent = "Your username is: John Williams ✔";
+        } else {
+          message.style.color = "red";
+          message.textContent = "An error occurred: invalid email!";
+        }
+      }, 1200);
     });
   </script>
 
