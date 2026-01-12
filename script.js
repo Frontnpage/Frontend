@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Quick Actions buttons for Pay Bill & Request Money
+  // ===== QUICK ACTIONS (PAY BILL & REQUEST MONEY TOGGLE) =====
 const quickBtns = document.querySelectorAll('.quick-btn');
 const payBillCard = document.querySelector('.pay-bill-card');
 const requestMoneyCard = document.querySelector('.request-money-card');
@@ -224,17 +224,35 @@ quickBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     const action = btn.dataset.action;
 
-      // Only handle pay-bill and request-money here
-      if (action === 'pay-bill' || action === 'request-money') {
-      if (sendForm) sendForm.style.display = "none";
-      if (toggleTransferBtn) toggleTransferBtn.textContent = "Transfer Funds";
-      // Hide both forms first
-      payBillCard.style.display = 'none';
-      requestMoneyCard.style.display = 'none';
+    // Ignore send-money (already handled elsewhere)
+    if (action === 'send-money') return;
 
-      // Show the correct form
-      if (action === 'pay-bill') payBillCard.style.display = 'block';
-      if (action === 'request-money') requestMoneyCard.style.display = 'block';
+    // Always hide Send Money form when using quick actions
+    if (sendForm) sendForm.style.display = "none";
+    if (toggleTransferBtn) toggleTransferBtn.textContent = "Transfer Funds";
+
+    // ===== PAY BILL TOGGLE =====
+    if (action === 'pay-bill' && payBillCard) {
+      const isVisible = payBillCard.style.display === 'block';
+
+      // Close all first
+      if (payBillCard) payBillCard.style.display = 'none';
+      if (requestMoneyCard) requestMoneyCard.style.display = 'none';
+
+      // Toggle current
+      if (!isVisible) payBillCard.style.display = 'block';
+    }
+
+    // ===== REQUEST MONEY TOGGLE =====
+    if (action === 'request-money' && requestMoneyCard) {
+      const isVisible = requestMoneyCard.style.display === 'block';
+
+      // Close all first
+      if (payBillCard) payBillCard.style.display = 'none';
+      if (requestMoneyCard) requestMoneyCard.style.display = 'none';
+
+      // Toggle current
+      if (!isVisible) requestMoneyCard.style.display = 'block';
     }
   });
 });
