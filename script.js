@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
       const username = document.getElementById("username")?.value?.trim() || "";
       const password = document.getElementById("password")?.value || "";
-      if (!username || !password) return alert("Enter both username & password.");
 
       if (messageEl) messageEl.style.color = "blue";
       messageEl.textContent = "Checking credentials...";
@@ -164,9 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const bank = bankSelect.value;
   const account = accountInput.value.trim(); // now defined
   const note = noteInput.value.trim();
-
-  if (!bank || !recipient || !account || isNaN(amount) || amount <= 0) return alert("Fill all fields correctly.");
-  if (amount > totalBalance) return alert("Insufficient funds.");
 
   pinModal.style.display = "flex";
   pinInput.value = "";
@@ -308,11 +304,9 @@ if (payBillForm && balanceEl && transactionsList) {
     const amount = parseFloat(document.getElementById("bill-amount").value);
 
     if (!biller || isNaN(amount) || amount <= 0) {
-      return alert("Enter valid bill details.");
     }
 
     if (amount > totalBalance) {
-      return alert("Insufficient balance.");
     }
 
     // Deduct balance
@@ -354,7 +348,6 @@ if (requestMoneyForm && transactionsList) {
     const amount = parseFloat(document.getElementById("request-amount").value);
 
     if (!name || isNaN(amount) || amount <= 0) {
-      return alert("Enter valid request details.");
     }
 
     const tx = {
