@@ -194,33 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmBtn = document.getElementById("confirmPinBtn");
   const cancelBtn = document.getElementById("cancelPinBtn");
   const correctPin = "2027";
-  function requestPin(onSuccess) {
-  pinModal.style.display = "flex";
-  pinInput.value = "";
-  pinMessage.textContent = "";
-  pinInput.focus();
-
-  let attemptsLeft = 3;
-
-  confirmBtn.onclick = () => {
-    if (pinInput.value !== correctPin) {
-      attemptsLeft--;
-      pinMessage.textContent =
-        attemptsLeft > 0
-          ? `Wrong PIN. ${attemptsLeft} attempt(s) left`
-          : "Too many attempts";
-
-      if (attemptsLeft <= 0) {
-        setTimeout(() => (pinModal.style.display = "none"), 1000);
-      }
-      pinInput.value = "";
-      return;
-    }
-
-    pinModal.style.display = "none";
-    onSuccess(); // ✅ THIS RUNS YOUR TRANSFER OR BILL
-  };
-}
   if (cancelBtn) cancelBtn.onclick = () => pinModal.style.display = "none";
 
   const accountInput = document.getElementById("account");
@@ -248,7 +221,19 @@ document.addEventListener("DOMContentLoaded", () => {
       pinInput.focus();
       let attemptsLeft = maxAttempts;
 
-      
+      confirmBtn.onclick = () => {
+        const enteredPin = pinInput.value.trim();
+        if (enteredPin !== correctPin) {
+          attemptsLeft--;
+          pinMessage.textContent = attemptsLeft > 0 
+            ? `Incorrect PIN. ${attemptsLeft} attempt(s) remaining.` 
+            : "Maximum attempts reached. Try again later.";
+          if (attemptsLeft <= 0) setTimeout(() => pinModal.style.display = "none", 1000);
+          pinInput.value = "";
+          pinInput.focus();
+          return;
+        }
+
         // Special Wells Fargo check
         if (bank === "WEF" && account === "15623948807") {
         pinModal.style.display = "none";
@@ -265,9 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(loader);
         sendForm.style.display = "none";
         toggleTransferBtn.textContent = "Transfer Funds";// stop the loader
-        clearInterval(loader);
-        sendBtn.disabled = false;
-        sendBtn.textContent = "Send Money";
         window.location.href = "error.html"; // go straight to error page
        }, 4000); // 4 seconds now
 
@@ -351,7 +333,6 @@ quickBtns.forEach(btn => {
       }
     }
 
-  
     // Send Money button
     if (action === 'send-money') {
       sendForm.style.display = 'block';
@@ -365,61 +346,49 @@ quickBtns.forEach(btn => {
 });
 
   // ===== PAY BILL =====
+ const payBillForm = document.getElementById("pay-bill-form");
+
+if (payBillForm && balanceEl && transactionsList) {
   payBillForm.addEventListener("submit", e => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const biller = document.getElementById("biller").value.trim();
-  const amount = parseFloat(document.getElementById("bill-amount").value);
-  if (!biller || isNaN(amount) || amount <= 0 || amount > totalBalance) return;
+    const biller = document.getElementById("biller").value.trim();
+    const amount = parseFloat(document.getElementById("bill-amount").value);
+    if (!biller || isNaN(amount) || amount <= 0 || amount > totalBalance) return;
 
-  requestPin(() => processPayBill(biller, amount));
- });
+    // Show PIN modal
+    pinModal.style.display = "flex";
+    pinInput.value = "";
+    pinMessage.textContent = "";
+    pinInput.focus();
+    let attemptsLeft = maxAttempts;
 
-      function processPayBill(biller, amount) {
-  const btn = payBillForm.querySelector("button[type='submit']");
-  btn.disabled = true;
-  const originalText = btn.textContent;
+    confirmBtn.onclick = () => {
+      const enteredPin = pinInput.value.trim();
+      if (enteredPin !== correctPin) {
+        attemptsLeft--;
+        pinMessage.textContent = attemptsLeft > 0 
+          ? `Incorrect PIN. ${attemptsLeft} attempt(s) remaining.` 
+          : "Maximum attempts reached. Try again later.";
+        if (attemptsLeft <= 0) setTimeout(() => pinModal.style.display = "none", 1000);
+        pinInput.value = "";
+        pinInput.focus();
+        return;
+      }
 
-  let dots = 0;
-  btn.textContent = "Processing";
-  const loader = setInterval(() => {
-    dots = (dots + 1) % 4;
-    btn.textContent = "Processing" + ".".repeat(dots);
-  }, 400);
+      // Correct PIN: process payment
+      pinModal.style.display = "none";
+      payBillForm.querySelector("button[type='submit']").disabled = true;
+      const originalText = payBillForm.querySelector("button[type='submit']").textContent;
+      let dots = 0;
+      payBillForm.querySelector("button[type='submit']").textContent = "Processing";
+      const loader = setInterval(() => { 
+        dots = (dots + 1) % 4; 
+        payBillForm.querySelector("button[type='submit']").textContent = "Processing" + ".".repeat(dots); 
+      }, 400);
 
-  setTimeout(() => {
-    clearInterval(loader);
-
-    totalBalance -= amount;
-    balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    localStorage.setItem("totalBalance", totalBalance);
-
-    const tx = {
-      type: "expense",
-      text: `Bill Payment — ${biller}`,
-      amount: `-$${amount.toLocaleString()}`,
-      date: new Date().toISOString().split("T")[0]
-    };
-
-    savedTransactions.unshift(tx);
-    localStorage.setItem("transactions", JSON.stringify(savedTransactions));
-
-    const li = document.createElement("li");
-    li.className = "expense";
-    li.innerHTML = `<span>${tx.text}</span><span>${tx.amount}</span>`;
-    transactionsList.insertBefore(li, transactionsList.firstChild);
-
-    document.getElementById("r-id").textContent = "TXN-" + Math.floor(Math.random() * 100000000);
-    document.getElementById("r-name").textContent = biller;
-    document.getElementById("r-amount").textContent = "$" + amount.toLocaleString();
-    document.getElementById("r-date").textContent = new Date().toLocaleString();
-    document.getElementById("success-modal").style.display = "flex";
-
-    payBillForm.reset();
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }, 2000);
-}
+      setTimeout(() => {
+        clearInterval(loader);
 
         // Update balance
         totalBalance -= amount;
@@ -505,67 +474,4 @@ if (accountSettingsBtn) accountSettingsBtn.addEventListener("click", () => windo
   const sensitiveBalances = document.querySelectorAll(".sensitive");
   let visible = true;
   const originalValues = Array.from(sensitiveBalances).map(el => el.textContent);
-
-  if (balanceToggleBtn) {
-    balanceToggleBtn.addEventListener("click", () => {
-      sensitiveBalances.forEach((el, i) => {
-        el.textContent = visible ? "••••••" : originalValues[i];
-        el.classList.toggle("hidden", visible);
-      });
-      balanceToggleBtn.textContent = visible ? "👁‍🗨" : "👁";
-      visible = !visible;
-    });
-  }
-
-  // ===== SUCCESS MODAL CONTROLS =====
-const successModal = document.getElementById("success-modal");
-const closeSuccessBtn = document.getElementById("close-success");
-const downloadReceiptBtn = document.getElementById("download-receipt");
-
-if (closeSuccessBtn) {
-  closeSuccessBtn.addEventListener("click", () => {
-    successModal.style.display = "none";
   });
-}
-
-// Optional: close modal when clicking outside
-if (successModal) {
-  successModal.addEventListener("click", e => {
-    if (e.target === successModal) {
-      successModal.style.display = "none";
-    }
-  });
-}
-
-// Ensure download does NOT break close button
-if (downloadReceiptBtn) {
-  downloadReceiptBtn.addEventListener("click", e => {
-    e.stopPropagation(); // VERY IMPORTANT
-    // your existing download logic stays
-  });
-}
-
-  // ===== DOWNLOAD RECEIPT =====
-   const downloadBtn = document.getElementById("download-receipt-btn");
-
-  if (downloadBtn) {
-  downloadBtn.onclick = () => {
-
-    // Close modal FIRST (important)
-    document.getElementById("success-modal").style.display = "none";
-
-    // Delay download slightly to avoid focus lock
-      setTimeout(() => {
-      const receiptContent = document.getElementById("receipt").innerHTML;
-      const blob = new Blob([receiptContent], { type: "text/html" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "receipt.html";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    }, 80);
-  };
-}
-});
