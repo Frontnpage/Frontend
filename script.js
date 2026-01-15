@@ -300,15 +300,18 @@ document.addEventListener("DOMContentLoaded", () => {
         payBillCard.style.display = 'none';
         if (requestMoneyCard.style.display === 'block') requestMoneyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-      if (action === 'send-money') {
-        sendForm.style.display = 'block';
-        toggleTransferBtn.textContent = "Hide Transfer Form";
-        sendForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        payBillCard.style.display = 'none';
-        requestMoneyCard.style.display = 'none';
-      }
-    });
-  });
+    if (action === 'send-money') {
+    if (sendForm.style.display === 'block') {
+    sendForm.style.display = 'none';
+    toggleTransferBtn.textContent = "Transfer Funds";
+  } else {
+    sendForm.style.display = 'block';
+    toggleTransferBtn.textContent = "Hide Transfer Form";
+    sendForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  payBillCard.style.display = 'none';
+  requestMoneyCard.style.display = 'none';
+  }
 
   // ===== PAY BILL =====
   const payBillForm = document.getElementById("pay-bill-form");
