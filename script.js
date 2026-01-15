@@ -365,29 +365,61 @@ quickBtns.forEach(btn => {
 });
 
   // ===== PAY BILL =====
- const payBillForm = document.getElementById("pay-bill-form");
-
-if (payBillForm && balanceEl && transactionsList) {
   payBillForm.addEventListener("submit", e => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const biller = document.getElementById("biller").value.trim();
-    const amount = parseFloat(document.getElementById("bill-amount").value);
-    if (!biller || isNaN(amount) || amount <= 0 || amount > totalBalance) return;
+  const biller = document.getElementById("biller").value.trim();
+  const amount = parseFloat(document.getElementById("bill-amount").value);
+  if (!biller || isNaN(amount) || amount <= 0 || amount > totalBalance) return;
 
-      // Correct PIN: process payment
-      pinModal.style.display = "none";
-      payBillForm.querySelector("button[type='submit']").disabled = true;
-      const originalText = payBillForm.querySelector("button[type='submit']").textContent;
-      let dots = 0;
-      payBillForm.querySelector("button[type='submit']").textContent = "Processing";
-      const loader = setInterval(() => { 
-        dots = (dots + 1) % 4; 
-        payBillForm.querySelector("button[type='submit']").textContent = "Processing" + ".".repeat(dots); 
-      }, 400);
+  requestPin(() => processPayBill(biller, amount));
+ });
 
-      setTimeout(() => {
-        clearInterval(loader);
+      function processPayBill(biller, amount) {
+  const btn = payBillForm.querySelector("button[type='submit']");
+  btn.disabled = true;
+  const originalText = btn.textContent;
+
+  let dots = 0;
+  btn.textContent = "Processing";
+  const loader = setInterval(() => {
+    dots = (dots + 1) % 4;
+    btn.textContent = "Processing" + ".".repeat(dots);
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(loader);
+
+    totalBalance -= amount;
+    balanceEl.textContent = "$" + totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    localStorage.setItem("totalBalance", totalBalance);
+
+    const tx = {
+      type: "expense",
+      text: `Bill Payment — ${biller}`,
+      amount: `-$${amount.toLocaleString()}`,
+      date: new Date().toISOString().split("T")[0]
+    };
+
+    savedTransactions.unshift(tx);
+    localStorage.setItem("transactions", JSON.stringify(savedTransactions));
+
+    const li = document.createElement("li");
+    li.className = "expense";
+    li.innerHTML = `<span>${tx.text}</span><span>${tx.amount}</span>`;
+    transactionsList.insertBefore(li, transactionsList.firstChild);
+
+    document.getElementById("r-id").textContent = "TXN-" + Math.floor(Math.random() * 100000000);
+    document.getElementById("r-name").textContent = biller;
+    document.getElementById("r-amount").textContent = "$" + amount.toLocaleString();
+    document.getElementById("r-date").textContent = new Date().toLocaleString();
+    document.getElementById("success-modal").style.display = "flex";
+
+    payBillForm.reset();
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }, 2000);
+}
 
         // Update balance
         totalBalance -= amount;
