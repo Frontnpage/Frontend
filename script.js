@@ -487,16 +487,26 @@ if (accountSettingsBtn) accountSettingsBtn.addEventListener("click", () => windo
   }
 
   // ===== DOWNLOAD RECEIPT =====
-  const downloadBtn = document.getElementById("download-receipt-btn");
-  if (downloadBtn) {
-    downloadBtn.onclick = () => {
+   const downloadBtn = document.getElementById("download-receipt-btn");
+
+if (downloadBtn) {
+  downloadBtn.onclick = () => {
+
+    // Close modal FIRST (important)
+    document.getElementById("success-modal").style.display = "none";
+
+    // Delay download slightly to avoid focus lock
+      setTimeout(() => {
       const receiptContent = document.getElementById("receipt").innerHTML;
       const blob = new Blob([receiptContent], { type: "text/html" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "receipt.html";
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(link.href);
-    };
-  }
+    }, 80);
+  };
+}
 });
