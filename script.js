@@ -462,6 +462,8 @@
           successModal.style.zIndex = 2000;
 
           const rid = $("r-id"); if (rid) rid.textContent = Math.floor(Math.random() * 1000000);
+          const rref = $("r-ref");
+          if (rref) rref.textContent = "REF" + Math.floor(100000000 + Math.random() * 900000000);
           const rname = $("r-name");
           if (rname) rname.textContent = action === "request" ? `Pending: ${details.recipient}` :
             (action === "send" ? details.recipient : details.billText);
