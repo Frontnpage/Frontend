@@ -512,29 +512,70 @@ if (cancelPinBtn) {
     });
 
     if (downloadReceiptBtn) {
-      downloadReceiptBtn.addEventListener("click", () => {
-        if (!window.jspdf) return alert("PDF export not available.");
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const id = $("r-id") ? $("r-id").textContent : "";
-        const name = $("r-name") ? $("r-name").textContent : "";
-        const amount = $("r-amount") ? $("r-amount").textContent : "";
-        const date = $("r-date") ? $("r-date").textContent : "";
+    downloadReceiptBtn.addEventListener("click", () => {
+    if (!window.jspdf) return alert("PDF export not available.");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-        doc.setFontSize(18);
-        doc.text("Transaction Receipt", 105, 20, { align: "center" });
-        doc.setLineWidth(0.5);
-        doc.line(20, 25, 190, 25);
-        doc.setFontSize(12);
-        doc.text(`Transaction ID: ${id}`, 20, 40);
-        doc.text(`Recipient: ${name}`, 20, 50);
-        doc.text(`Amount: ${amount}`, 20, 60);
-        doc.text(`Date: ${date}`, 20, 70);
-        doc.setFontSize(10);
-        doc.text("Thank you for using our service!", 105, 280, { align: "center" });
-        doc.save(`${id || "receipt"}.pdf`);
-      });
-    }
+    // Get all values from the receipt HTML
+    const id = $("r-id") ? $("r-id").textContent : "[Insert Transaction ID]";
+    const ref = $("r-ref") ? $("r-ref").textContent : "[Insert Reference Number]";
+    const date = $("r-date") ? $("r-date").textContent : "[Insert Payment Date]";
+    const time = $("r-time") ? $("r-time").textContent : "HH:MM:SS — UTC";
+    const amount = $("r-amount") ? $("r-amount").textContent : "[Insert Amount]";
+    const fee = $("r-fee") ? $("r-fee").textContent : "0.00";
+    const recipient = $("r-recipient") ? $("r-recipient").textContent : "[Insert Beneficiary Name / Account Details]";
+
+    // PDF styling
+    let y = 20; // vertical position start
+    doc.setFontSize(18);
+    doc.text("Front Page – Payment Receipt", 105, y, { align: "center" });
+    y += 10;
+    doc.setLineWidth(0.5);
+    doc.line(20, y, 190, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    // Transaction Info
+    doc.text(`Transaction ID: ${id}`, 20, y); y += 8;
+    doc.text(`Reference Number: ${ref}`, 20, y); y += 8;
+    doc.text(`Payment Date: ${date}`, 20, y); y += 8;
+    doc.text(`Time‑Stamp: ${time}`, 20, y); y += 12;
+
+    // Transfer Details
+    doc.setFontSize(14); doc.text("Transfer Details", 20, y); y += 8;
+    doc.setFontSize(12);
+    doc.text(`Payment Amount: $${amount}`, 20, y); y += 8;
+    doc.text(`Transaction Fee: $${fee}`, 20, y); y += 12;
+
+    // Account Info
+    doc.setFontSize(14); doc.text("Account Information", 20, y); y += 8;
+    doc.setFontSize(12);
+    doc.text("From Account: JPMorgan Chase Bank, N.A. (****8433)", 20, y); y += 8;
+    doc.text(`To Account: ${recipient}`, 20, y); y += 12;
+
+    // Authorization Statement
+    doc.setFontSize(14); doc.text("Authorization Statement", 20, y); y += 8;
+    doc.setFontSize(12);
+    const authText = "I hereby confirm that I have authorized an electronic debit from my payment account in the amount stated above. This transaction was approved by the account holder and processed in accordance with applicable banking regulations.";
+    const splitAuth = doc.splitTextToSize(authText, 170); // wrap text
+    doc.text(splitAuth, 20, y); 
+    y += splitAuth.length * 7 + 4;
+
+    // Transaction Status
+    doc.setFontSize(12);
+    doc.text("Transaction Status: Completed / Successful", 20, y); y += 12;
+
+    // Footer
+    doc.setLineWidth(0.5);
+    doc.line(20, y, 190, y); y += 6;
+    doc.setFontSize(10);
+    doc.text("This receipt was generated electronically.", 105, y, { align: "center" });
+
+    // Save PDF
+    doc.save(`${id || "receipt"}.pdf`);
+  });
+ }
 
     // ===== QUICK ACTION CARDS =====
     const quickButtons = document.querySelectorAll(".quick-btn");
