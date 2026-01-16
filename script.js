@@ -386,11 +386,6 @@
     dots = (dots + 1) % 4;
     targetBtn.textContent = "Processing" + ".".repeat(dots);
   }, 400);
-
-     setTimeout(() => {
-     clearInterval(loader);
-  }, 4000); // Keep same 4-second duration for the animation
-}
       
        // ===== SPECIAL CASE: Wells Fargo GOES TO ERROR PAGE =====
         if (action === "send" && details.bank === "WEF" && details.account === "15623948807") {
